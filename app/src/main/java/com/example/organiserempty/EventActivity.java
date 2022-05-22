@@ -8,12 +8,18 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
 
 public class EventActivity extends AppCompatActivity {
 
@@ -21,6 +27,12 @@ public class EventActivity extends AppCompatActivity {
     public ActionBarDrawerToggle actionBarDrawerToggle;
     MenuItem event,remind,setting;
     FloatingActionButton fab;
+    FragmentManager fm;
+    OpenHelper openHelper;
+
+    ArrayList<String> listItem;
+    ArrayAdapter adapter;
+    ListView list;
 
 
 
@@ -28,7 +40,20 @@ public class EventActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_event);
+        event=findViewById(R.id.nav_events);
+        remind=findViewById(R.id.nav_reminders);
+        setting=findViewById(R.id.nav_settings);
+        fab=findViewById(R.id.fab);
+        list=findViewById(R.id.list);
+
+
+        openHelper=new OpenHelper(this);
+
+        listItem=new ArrayList<>();
+
+        viewData();
+
 
         // drawer layout instance to toggle the menu icon to open
         // drawer and back button to close drawer
@@ -42,30 +67,36 @@ public class EventActivity extends AppCompatActivity {
 
         // to make the Navigation drawer icon always appear on the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        event=findViewById(R.id.nav_events);
-        remind=findViewById(R.id.nav_reminders);
-        setting=findViewById(R.id.nav_settings);
-        fab=findViewById(R.id.fab);
+
+        fm=getSupportFragmentManager();
 
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(EventActivity.this,DialogFragment.class);
-                startActivity(intent);
-                //FragmentManager fm=getSupportFragmentManager();
-               // DialogFragment dialogFragment=new DialogFragment();
-                //dialogFragment.show(fm,"Dialog");
-
+                DialogFragment dialogFragment=new DialogFragment();
+                dialogFragment.show(fm,"dialog");
             }
         });
     }
 
-    // override the onOptionsItemSelected()
-    // function to implement
-    // the item click listener callback
-    // to open and close the navigation
-    // drawer when the icon is clicked
+    private void viewData() {
+        Cursor cursor=openHelper.viewData();
+
+
+        if(cursor.getCount()==0){
+            Toast.makeText(this,"Нет информации",Toast.LENGTH_SHORT).show();
+        } else{
+            while (cursor.moveToNext()){
+                listItem.add(cursor.getString(1));
+            }
+
+            adapter=new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listItem);
+            list.setAdapter(adapter);
+        }
+    }
+
+    // переходы между активностями
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
