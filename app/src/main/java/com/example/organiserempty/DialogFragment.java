@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDialogFragment;
 
@@ -50,13 +51,13 @@ public class DialogFragment extends AppCompatDialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         header=inflater.inflate(R.layout.fragment_dialog,container,false).findViewById(R.id.header);
         desc=inflater.inflate(R.layout.fragment_dialog,container,false).findViewById(R.id.desc);
         time=inflater.inflate(R.layout.fragment_dialog,container,false).findViewById(R.id.time);
         button=inflater.inflate(R.layout.fragment_dialog,container,false).findViewById(R.id.confirm_button);
         openHelper=new OpenHelper(getContext());
-        db=openHelper.getWritableDatabase();
+
 
 
         button.setOnClickListener(new View.OnClickListener() {
@@ -67,7 +68,6 @@ public class DialogFragment extends AppCompatDialogFragment {
                 values.put(OpenHelper.COLUMN_DESCRIPTION,desc.getText().toString());
                 values.put(OpenHelper.COLUMN_TIME,time.getText().toString());
                 db.insert(OpenHelper.TABLE_NAME,null,values);
-                db.close();
 
                 DialogFragment.this.dismiss();
             }
@@ -79,10 +79,17 @@ public class DialogFragment extends AppCompatDialogFragment {
 
     @Override
     public void onResume() {
+        db=openHelper.getWritableDatabase();
         super.onResume();
         Window window=getDialog().getWindow();
         window.setLayout(1000,750);
         window.setGravity(Gravity.CENTER);
 
+    }
+
+    @Override
+    public void onStop() {
+        db.close();
+        super.onStop();
     }
 }

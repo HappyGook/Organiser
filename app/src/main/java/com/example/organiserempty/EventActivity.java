@@ -81,6 +81,7 @@ public class EventActivity extends AppCompatActivity {
     }
 
     private void viewData() {
+        list.setAdapter(null);
         Cursor cursor=openHelper.viewData();
 
 
@@ -95,6 +96,8 @@ public class EventActivity extends AppCompatActivity {
             list.setAdapter(adapter);
         }
     }
+
+
 
     // переходы между активностями
     @Override
